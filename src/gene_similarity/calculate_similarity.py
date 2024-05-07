@@ -5,11 +5,13 @@ class Gene:
         self._kmer_size = kmer_size
         self._kmers = self._extract_kmers()
         self._kmers_to_weights = self._calculate_kmer_weights()
-    
+
     def __str__(self) -> str:
         return self._name
+
     def __repr__(self) -> str:
         return self._name
+
     @property
     def kmers(self):
         return set(self._kmers)
@@ -36,6 +38,7 @@ class Gene:
             result.append(
                 self._gene_sequence[kmer_index : kmer_index + self._kmer_size]
             )
+
         return result
 
 
@@ -45,12 +48,20 @@ class SimilarityCalculator:
 
     def calculate(self):
         result = {}
+        result = []
         for first_gene in self._genes:
             for second_gene in self._genes:
-                result[(first_gene, second_gene)] = self._calculate(
-                    first_gene, second_gene
-                )
-        return result
+                # result[(first_gene, second_gene)] = self._calculate(
+                #     first_gene, second_gene
+                result.append("{:.3f}".format(round(self._calculate(first_gene, second_gene),3)))
+        n = int(len(result) ** 0.5)
+        print(self._genes)
+        two_dim_list = [result[i : i + n] for i in range(0, len(result), n)]
+        for elem in two_dim_list:
+            print(elem)
+        exit
+        #return two_dim_list
+        # return result
 
     def _calculate(self, first_gene: Gene, second_gene: Gene):
         weight = 0
