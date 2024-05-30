@@ -1,19 +1,16 @@
 import logging
-
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler("example.log")
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
-
 
 class Gene:
-    def __init__(self, name, gene_sequence, kmer_size):
+    def __init__(self, name, gene_sequence, kmer_size, logger_path):
         self._name = name
         self._gene_sequence = gene_sequence
         self._kmer_size = kmer_size
         self._kmers = self._extract_kmers()
         self._kmers_to_weights = self._calculate_kmer_weights()
-
+        file_handler = logging.FileHandler(logger_path)
+        logger.addHandler(file_handler)
+        logger.setLevel(logging.INFO)
     def __str__(self) -> str:
         return self._name
 
@@ -39,7 +36,7 @@ class Gene:
         for kmer in set(self._kmers):
             frequency = self._kmers.count(kmer)
             result[kmer] = frequency
-            logger.info(f"sampe_name: {self._name},kmer: {kmer},frequency: {frequency}")
+            logger.info(f"sampe_name,{self._name},kmer,{kmer},frequency,{frequency}")
         return result
 
     def _extract_kmers(self):
