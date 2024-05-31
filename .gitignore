@@ -161,3 +161,6 @@ cython_debug/
 removed_new_line_APC_BCOR 
 removed_new_line_APC_BCOR.bak
 tmp*
+*.log
+*.csv
+*.fa

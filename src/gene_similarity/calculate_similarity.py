@@ -1,7 +1,10 @@
 import logging
-
+import os
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler("example.log")
+log_file = "Final.log"
+if os.path.exists(log_file):
+    os.remove(log_file)
+file_handler = logging.FileHandler(log_file)
 logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
@@ -39,7 +42,7 @@ class Gene:
         for kmer in set(self._kmers):
             frequency = self._kmers.count(kmer)
             result[kmer] = frequency
-            logger.info(f"sampe_name: {self._name},kmer: {kmer},frequency: {frequency}")
+            logger.info(f"sampe_name,{self._name},kmer,{kmer},frequency,{frequency}")
         return result
 
     def _extract_kmers(self):
