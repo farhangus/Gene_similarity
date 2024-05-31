@@ -8,9 +8,13 @@ class Gene:
         self._kmer_size = kmer_size
         self._kmers = self._extract_kmers()
         self._kmers_to_weights = self._calculate_kmer_weights()
+        # Setting up the logger
+        self.logger = logging.getLogger(logger_path)
         file_handler = logging.FileHandler(logger_path)
-        logger.addHandler(file_handler)
-        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(message)s')
+        file_handler.setFormatter(formatter)
+
+
     def __str__(self) -> str:
         return self._name
 
@@ -36,7 +40,9 @@ class Gene:
         for kmer in set(self._kmers):
             frequency = self._kmers.count(kmer)
             result[kmer] = frequency
-            logger.info(f"sampe_name,{self._name},kmer,{kmer},frequency,{frequency}")
+            output_message = f"sample_name,{self._name},kmer,{kmer},frequency,{frequency}"
+            print(output_message)
+#            self.logger.info(output_message)
         return result
 
     def _extract_kmers(self):

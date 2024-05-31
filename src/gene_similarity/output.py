@@ -23,6 +23,7 @@ class HeatmapOutputHandler(OutputHandlerBase):
         result = [[0 for _ in range(dimension)] for _ in range(dimension)]
         column_names = self._extract_column_names()
 
+
         for gene_pair, similarity in self._similarity_map.items():
             row = column_names.index(gene_pair[0])
             column = column_names.index(gene_pair[1])
