@@ -1,5 +1,17 @@
 import logging
+<<<<<<< HEAD
 logger = logging.getLogger(__name__)
+=======
+import os
+logger = logging.getLogger(__name__)
+log_file = "Final.log"
+if os.path.exists(log_file):
+    os.remove(log_file)
+file_handler = logging.FileHandler(log_file)
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
+
+>>>>>>> tmp_branch
 
 class Gene:
     def __init__(self, name, gene_sequence, kmer_size, logger_path):

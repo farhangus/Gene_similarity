@@ -37,8 +37,11 @@ class HeatmapOutputHandler(OutputHandlerBase):
         table = first_row + [
             [column_names[row_number]] + row for row_number, row in enumerate(table)
         ]
-        for row in table:
-            print("\t".join(map(str, row)))
+        with open('heatmap.csv','w') as f:
+            for row in table:
+                f.write("\t".join(map(str, row)) + '\n')
+
+
 
     def _extract_column_names(self):
         result = set()

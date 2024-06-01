@@ -162,4 +162,7 @@ removed_new_line_APC_BCOR
 removed_new_line_APC_BCOR.bak
 *.fa
 tmp*
-merged_genes.fa sample_genes_1.fa sample_genes_2.fa sample_genes_3.fa sample_genes_4.fa sample_merged_genes.fa
+*.log
+*.csv
+*.fa
+*.txt
