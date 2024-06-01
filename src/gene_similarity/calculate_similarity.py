@@ -1,31 +1,25 @@
 import logging
-<<<<<<< HEAD
-logger = logging.getLogger(__name__)
-=======
-import os
-logger = logging.getLogger(__name__)
-log_file = "Final.log"
-if os.path.exists(log_file):
-    os.remove(log_file)
-file_handler = logging.FileHandler(log_file)
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
 
->>>>>>> tmp_branch
+from gene_similarity import APP_NAME
+
+logger = logging.getLogger(APP_NAME)
+
 
 class Gene:
-    def __init__(self, name, gene_sequence, kmer_size, logger_path):
+    def __init__(self, name, gene_sequence, kmer_size):
         self._name = name
         self._gene_sequence = gene_sequence
         self._kmer_size = kmer_size
         self._kmers = self._extract_kmers()
         self._kmers_to_weights = self._calculate_kmer_weights()
-        # Setting up the logger
-        self.logger = logging.getLogger(logger_path)
-        file_handler = logging.FileHandler(logger_path)
-        formatter = logging.Formatter('%(asctime)s - %(message)s')
-        file_handler.setFormatter(formatter)
 
+    @classmethod
+    def setup_logger(cls, log_file_path):
+        if any(handler.get_name() == log_file_path for handler in logger.handlers):
+            return
+        file_handler = logging.FileHandler(log_file_path)
+        logger.addHandler(file_handler)
+        logger.setLevel(logging.INFO)
 
     def __str__(self) -> str:
         return self._name
@@ -52,9 +46,10 @@ class Gene:
         for kmer in set(self._kmers):
             frequency = self._kmers.count(kmer)
             result[kmer] = frequency
-            output_message = f"sample_name,{self._name},kmer,{kmer},frequency,{frequency}"
-            print(output_message)
-#            self.logger.info(output_message)
+            output_message = (
+                f"sample_name,{self._name},kmer,{kmer},frequency,{frequency}"
+            )
+            logger.info(output_message)
         return result
 
     def _extract_kmers(self):

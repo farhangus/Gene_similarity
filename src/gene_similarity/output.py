@@ -23,7 +23,6 @@ class HeatmapOutputHandler(OutputHandlerBase):
         result = [[0 for _ in range(dimension)] for _ in range(dimension)]
         column_names = self._extract_column_names()
 
-
         for gene_pair, similarity in self._similarity_map.items():
             row = column_names.index(gene_pair[0])
             column = column_names.index(gene_pair[1])
@@ -37,11 +36,9 @@ class HeatmapOutputHandler(OutputHandlerBase):
         table = first_row + [
             [column_names[row_number]] + row for row_number, row in enumerate(table)
         ]
-        with open('heatmap.csv','w') as f:
+        with open("heatmap.csv", "w") as f:
             for row in table:
-                f.write("\t".join(map(str, row)) + '\n')
-
-
+                f.write("\t".join(map(str, row)) + "\n")
 
     def _extract_column_names(self):
         result = set()
