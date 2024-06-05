@@ -166,3 +166,6 @@ tmp*
 *.csv
 *.fa
 *.txt
+all_genes_exons.bed
+hg38_reference/
+

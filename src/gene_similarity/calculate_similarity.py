@@ -54,7 +54,7 @@ class Gene:
 
     def _extract_kmers(self):
         result = []
-        for kmer_index in range(len(self._gene_sequence) - self._kmer_size):
+        for kmer_index in range(len(self._gene_sequence) - (self._kmer_size - 1)):
             result.append(
                 self._gene_sequence[kmer_index : kmer_index + self._kmer_size]
             )
