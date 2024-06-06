@@ -4,7 +4,7 @@
 kmer="$1"
 # Define the number of matches to report
 num_matches=${2:-1}
-
+not_found_kmers=0
 # Read the file into an array
 mapfile -t lines < all_exons_sequences.fa
 
@@ -56,6 +56,7 @@ done
 blue=$(tput setaf 4)      # Blue color
 reset=$(tput sgr0)        # Reset color
 if [ "$match_found" = false ]; then
+  not_found_kmers=$((not_found_kmers + 1))
   echo "${blue}The kmer '$kmer' was not found in the file${reset}"
 fi
 
