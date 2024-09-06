@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil  # Import shutil for folder removal
 import click
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -20,16 +21,22 @@ def entry_point(ctx, file, kmer_size, logger_path, heatmap_path):
     # If logger_path is not provided or is empty, default to "example.log" in the current directory
     if not logger_path or logger_path == "example.log":
         log_file_path = "example.log"
+        output_dir = "."  # Use current directory
     else:
-        # Check if logger_path is a directory; if so, append "example.log" as the log file name
+        # If logger_path is a directory, use it, otherwise use the parent directory
         if os.path.isdir(logger_path) or not os.path.splitext(logger_path)[1]:
-            log_file_path = os.path.join(logger_path, "example.log")
-            os.makedirs(logger_path, exist_ok=True)  # Ensure directory exists
+            output_dir = logger_path
+            log_file_path = os.path.join(output_dir, "example.log")
         else:
-            # Otherwise, treat it as a file path
             log_file_path = logger_path
-            # Ensure the directory for the log file exists
-            os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+            output_dir = os.path.dirname(log_file_path)
+
+    # Remove the output folder if it exists
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+
+    # Recreate the directory
+    os.makedirs(output_dir, exist_ok=True)
 
     # Set up the logger
     Gene.setup_logger(log_file_path)
@@ -47,13 +54,12 @@ def entry_point(ctx, file, kmer_size, logger_path, heatmap_path):
     similarity_matrix = similarity_calculator.calculate()
     
     # Save heatmap in the same directory as the log file
-    heatmap_output_dir = os.path.dirname(log_file_path) or "."
-    heatmap_output_path = os.path.join(heatmap_output_dir, heatmap_path)
+    heatmap_output_path = os.path.join(output_dir, heatmap_path)
     generate_heatmap(similarity_matrix, heatmap_output_path)
 
     # Continue logging and handling other tasks as needed
     heatmap_output_handler = HeatmapOutputHandler(similarity_matrix)
-    heatmap_output_handler.render(output_path=heatmap_output_dir)
+    heatmap_output_handler.render(output_path=output_dir)
 
 
 def generate_heatmap(similarity_matrix, heatmap_path):
@@ -69,9 +75,10 @@ def generate_heatmap(similarity_matrix, heatmap_path):
     # Fill missing values with zeros (if any)
     data = data.fillna(0)
 
-    # Generate and save the heatmap
+    # Generate and save the heatmap with a yellow-to-red color scheme
     plt.figure(figsize=(10, 8))
-    sns.heatmap(data, annot=False, cmap="coolwarm", cbar=True)
+    sns.heatmap(data, annot=True, cmap="YlOrRd", cbar=True)  # Yellow to Red gradient
     plt.title("Gene Similarity Heatmap")
     plt.savefig(heatmap_path)
     plt.close()
+
