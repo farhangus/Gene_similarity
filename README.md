@@ -1,3 +1,7 @@
+Author
+
+    Farhang Jaryani - Postdoctoral Fellow - farhang.jaryani@bcm.edu, fxjaryan@texaschildrens.org
+    The Gallo Brain Tumor Research Lab, Department of Pediatrics, Section of Hematology-Oncology, Baylor College of Medicine
 
 # Gene Similarity Visualization Project
 
@@ -51,6 +55,11 @@ To run the project, the following packages are required (available in `requireme
    ```bash
    pip install -r requirements.txt
    ```
+   The package is available on PyPI. You can install it using `pip`:
+
+```bash
+pip install gene-similarity
+```
 
 3. Use the provided command-line interface to generate visualizations by running:
 
