@@ -1,3 +1,10 @@
+"""
+Author: Farhang Jaryani
+Position: Postdoctoral Fellow
+Email: farhang.jaryani@bcm.edu, fxjaryan@texaschildrens.org
+Affiliation: The Gallo Brain Tumor Research Lab, Department of Pediatrics, Section of Hematology-Oncology, Baylor College of Medicine
+"""
+
 import logging
 import os
 import shutil
