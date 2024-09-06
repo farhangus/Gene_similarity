@@ -160,13 +160,10 @@ cython_debug/
 #.idea/
 removed_new_line_APC_BCOR 
 removed_new_line_APC_BCOR.bak
-*.fa
 tmp*
 *.log
 *.csv
-*.fa
 all_genes_exons.bed
 hg38_reference/
 
-*.png
 \!sample_genes.fa
