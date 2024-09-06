@@ -70,10 +70,22 @@ def entry_point(ctx, file, kmer_size, logger_path, heatmap_path):
 
 def generate_heatmap(data, heatmap_path):
     plt.figure(figsize=(10, 8))
+    
+    # Create the heatmap with horizontal y-axis and vertical x-axis labels
     sns.heatmap(data, annot=True, cmap="YlOrRd", cbar=True)
-    plt.title("similarity Heatmap")
+    
+    # Rotate x-axis labels (make them vertical)
+    plt.xticks(rotation=90)
+    
+    # Rotate y-axis labels (make them horizontal)
+    plt.yticks(rotation=0)
+    
+    plt.title("Similarity Heatmap")
+    
+    # Save the plot
     plt.savefig(heatmap_path)
     plt.close()
+
 
 
 
