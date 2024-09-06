@@ -58,7 +58,7 @@ To run the project, the following packages are required (available in `requireme
    The package is available on PyPI. You can install it using `pip`:
 
 ```bash
-pip install gene-similarity
+   pip install gene-similarity
 ```
 
 3. Use the provided command-line interface to generate visualizations by running:
