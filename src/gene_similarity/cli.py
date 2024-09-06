@@ -1,10 +1,14 @@
 import logging
 import os
-import shutil  # Import shutil for folder removal
+import shutil
 import click
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+import scipy.cluster.hierarchy as sch
+import networkx as nx
+from mpl_toolkits.mplot3d import Axes3D
 
 from gene_similarity import APP_NAME
 from gene_similarity.calculate_similarity import Gene, SimilarityCalculator
@@ -18,12 +22,10 @@ from gene_similarity.parser import Parser
 @click.option("--heatmap_path", "-h", help="heatmap output file name", default="heatmap.png")
 @click.pass_context
 def entry_point(ctx, file, kmer_size, logger_path, heatmap_path):
-    # If logger_path is not provided or is empty, default to "example.log" in the current directory
     if not logger_path or logger_path == "example.log":
         log_file_path = "example.log"
-        output_dir = "."  # Use current directory
+        output_dir = "."
     else:
-        # If logger_path is a directory, use it, otherwise use the parent directory
         if os.path.isdir(logger_path) or not os.path.splitext(logger_path)[1]:
             output_dir = logger_path
             log_file_path = os.path.join(output_dir, "example.log")
@@ -31,14 +33,12 @@ def entry_point(ctx, file, kmer_size, logger_path, heatmap_path):
             log_file_path = logger_path
             output_dir = os.path.dirname(log_file_path)
 
-    # Remove the output folder if it exists
-    if os.path.exists(output_dir):
+    if output_dir != "." and os.path.exists(output_dir):
         shutil.rmtree(output_dir)
 
-    # Recreate the directory
-    os.makedirs(output_dir, exist_ok=True)
+    if output_dir != ".":
+        os.makedirs(output_dir, exist_ok=True)
 
-    # Set up the logger
     Gene.setup_logger(log_file_path)
 
     if not file:
@@ -52,33 +52,91 @@ def entry_point(ctx, file, kmer_size, logger_path, heatmap_path):
 
     similarity_calculator = SimilarityCalculator(genes)
     similarity_matrix = similarity_calculator.calculate()
-    
-    # Save heatmap in the same directory as the log file
-    heatmap_output_path = os.path.join(output_dir, heatmap_path)
-    generate_heatmap(similarity_matrix, heatmap_output_path)
 
-    # Continue logging and handling other tasks as needed
-    heatmap_output_handler = HeatmapOutputHandler(similarity_matrix)
-    heatmap_output_handler.render(output_path=output_dir)
-
-
-def generate_heatmap(similarity_matrix, heatmap_path):
-    # Convert the similarity matrix to a DataFrame for heatmap generation
-    # Use gene names (_name) for sorting instead of Gene objects
     column_names = sorted({gene._name for pair in similarity_matrix for gene in pair})
     data = pd.DataFrame(index=column_names, columns=column_names)
 
     for (gene1, gene2), value in similarity_matrix.items():
         data.at[gene1._name, gene2._name] = value
-        data.at[gene2._name, gene1._name] = value  # Ensure symmetry
+        data.at[gene2._name, gene1._name] = value
 
-    # Fill missing values with zeros (if any)
     data = data.fillna(0)
 
-    # Generate and save the heatmap with a yellow-to-red color scheme
+    # Generate all plots
+    generate_heatmap(data, os.path.join(output_dir, "heatmap.png"))
+    generate_network_graph(data, os.path.join(output_dir, "network_graph.png"))
+    generate_bubble_chart(data, os.path.join(output_dir, "bubble_chart.png"))
+    generate_bar_plot(data, os.path.join(output_dir, "bar_plot.png"))
+
+def generate_heatmap(data, heatmap_path):
     plt.figure(figsize=(10, 8))
-    sns.heatmap(data, annot=True, cmap="YlOrRd", cbar=True)  # Yellow to Red gradient
-    plt.title("Gene Similarity Heatmap")
+    sns.heatmap(data, annot=True, cmap="YlOrRd", cbar=True)
+    plt.title("similarity Heatmap")
     plt.savefig(heatmap_path)
     plt.close()
 
+
+
+def generate_network_graph(data, network_graph_path):
+    G = nx.Graph()
+    for gene1 in data.index:
+        for gene2 in data.columns:
+            if gene1 != gene2 and data.at[gene1, gene2] > 0.7:  # Threshold for similarity
+                G.add_edge(gene1, gene2, weight=data.at[gene1, gene2])
+
+    pos = nx.spring_layout(G)
+    plt.figure(figsize=(10, 8))
+    edges = nx.draw_networkx_edges(G, pos, alpha=0.3)
+    nodes = nx.draw_networkx_nodes(G, pos, node_size=700, node_color="red")
+    labels = nx.draw_networkx_labels(G, pos, font_size=10)
+    plt.title("similarity Network Graph")
+    plt.savefig(network_graph_path)
+    plt.close()
+
+
+def generate_bubble_chart(data, bubble_chart_path):
+    plt.figure(figsize=(10, 8))
+    x = []
+    y = []
+    size = []
+    for i, gene1 in enumerate(data.index):
+        for j, gene2 in enumerate(data.columns):
+            if i != j:
+                x.append(gene1)
+                y.append(gene2)
+                size.append(data.at[gene1, gene2] * 1000)  # Scale size for visibility
+
+    # Create scatter plot
+    scatter = plt.scatter(x, y, s=size, c='red', alpha=0.5)
+
+    # Add title and rotate x-axis labels
+    plt.title("similarity Bubble Chart")
+    plt.xticks(rotation=90)
+
+    # Adjust legend bubble sizes to match the plot
+    handles = [plt.Line2D([], [], marker='o', color='red', linestyle='None',
+                          markersize=np.sqrt(s) * 0.7, label=f'Similarity: {s/1000:.2f}')  # Adjust marker size
+               for s in [1000, 500, 250]]  # Sizes for the legend
+
+    # Set the legend outside the plot area with increased spacing
+    plt.legend(handles=handles, title="Bubble Size (Similarity)", bbox_to_anchor=(1.05, 1), loc='upper left',
+               handletextpad=2.0, labelspacing=2)  # Increased padding and spacing
+
+    # Save the plot
+    plt.savefig(bubble_chart_path, bbox_inches='tight')
+    plt.close()
+
+
+
+def generate_bar_plot(data, bar_plot_path):
+    plt.figure(figsize=(10, 8))
+    avg_similarity = data.mean(axis=1)
+    avg_similarity.plot(kind='bar', color='orange')
+    plt.title("Average similarity")
+    plt.xlabel("Genes")
+    plt.ylabel("Average Similarity")
+    plt.savefig(bar_plot_path)
+    plt.close()
+
+if __name__ == "__main__":
+    entry_point()
